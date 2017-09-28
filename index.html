@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,user-scalable=no" />
+    <link href="css/main.css" rel="stylesheet" />
+    <script src="js/tool.js"></script>
+    <script src="js/m.Tween.js"></script>
+    <title></title>
+    <script>
+        (function () {
+            setRem()
+            window.addEventListener("orientation" in window ? "deviceorientation" : "resize", setRem);
+            function setRem() {
+                var html = document.documentElement;
+                var htmlW = html.getBoundingClientRect().width;
+                html.style.fontSize = htmlW / 12 + 'px';
+            }
+        })()
+
+        document.addEventListener('touchstart', function (ev) {
+            ev.preventDefault();
+        })
+    </script>
+</head>
+<body>
+      <div id="box">
+           <header><span>今日要闻</span></header>
+
+          <div class="myhandle">
+              <div id="main">
+                  <div class="refresh">
+                      <i></i>
+                      <em>松开刷新</em>
+                  </div>
+
+                  <div class="header clearF">
+                      <div class="img_news">
+                          <ul></ul>
+                          <nav class="list">
+                              <a href="#"></a>
+                              <a href="#"></a>
+                          </nav>
+                      </div>
+
+                      <div class="importent clearF">
+                          <p class="left">
+                              <strong>今日要闻</strong>
+                              <span><em class="total">6</em>条未读</span>
+                          </p>
+                          <div class="right">
+                              <ol></ol>
+                          </div>
+
+                      </div>
+
+                  </div>
+                  <div class="border"></div>
+
+                  <div class="news_list">
+                      <ul>
+                          <!--
+                     <li>
+                         <img src="img/small.png" alt="pic" />
+                         <div class="mews_text">
+                             <span>默尔克落选大选成功默尔克落选大选成功</span>
+                             <em>新华网</em>
+                         </div>
+                     </li>
+                     -->
+                      </ul>
+                  </div>
+
+              </div>
+          </div>
+      </div>
+    <script src="js/main.js"></script>
+</body>
+</html>
