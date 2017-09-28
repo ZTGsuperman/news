@@ -23,7 +23,7 @@ window.onload = function () {
         el: myHandle,
         dir: 'y',
         move: function (target) {
-            if (target.y> 0) {
+            if (Math.abs(target.y) >Math.abs(target.x)) {
                 tip.innerHTML = '松开刷新';
                 isRe = true;
             }
@@ -210,8 +210,6 @@ mv.app.changeImg = function () {
 
     css(oUl, 'width', liW * iLength)
 
-    
-
     var lastPoint = 0;
     var dis = 0;
     var index = 0;
@@ -225,6 +223,7 @@ mv.app.changeImg = function () {
         oUl.style.transition = oUl.style.webkitTransition = 'none';
     })
     oUl.addEventListener('touchmove', function (ev) {
+        clearInterval(oUl.timer)
         var touch = ev.changedTouches[0];
         var nowPonit = touch.pageX;
 
@@ -256,6 +255,10 @@ mv.app.changeImg = function () {
         if (endPoint - startPoint < 10) {
             ev.stopPropagation();
         }
+
+        setTimeout(function () {
+            mv.tool.autoChange(oUl, 'x', index)
+        }, 6000)
     })
 
     for (var i = 0; i < iLength; i++) {
@@ -264,7 +267,7 @@ mv.app.changeImg = function () {
         })
     }
     setTimeout(function () {
-        mv.tool.autoChange(oUl, 'x')
+        mv.tool.autoChange(oUl, 'x', index)
     }, 6000)
 }
 mv.app.importent = function (data) {
@@ -284,11 +287,16 @@ mv.app.importent = function (data) {
         }
     }
     total.innerHTML = num;
+    var oLi=oL.getElementsByTagName('li');
 
+    for (var i = 0; i < oLi.length; i++) {
+        mv.tool.tab(oLi[i], function () {
+            mv.tool.openHref(this)
+        })
+    }
     setTimeout(function () {
         mv.tool.autoChange(oL,'y')
-
-    }, 1000)
+    }, 4000)
 
 }
 
@@ -319,14 +327,7 @@ mv.app.createLi = function (data) {
             }
         }
 
-     /*   oUl.addEventListener('touchstart', function (ev) {
-            var target = ev.srcElement || ev.target;
-            console.log(target.parentNode.parentNode)
-            mv.tool.tab(target.parentNode.parentNode, function () {
-                mv.tool.openHref(target.parentNode.parentNode)
-            })
-        })
-  */
+   
         var oLi = oUl.getElementsByTagName('li');
         for (var i = 0; i < oLi.length; i++) {
             mv.tool.tab(oLi[i], function () {
@@ -429,8 +430,10 @@ mv.tool.myScroll = function (init) {
             isMove.y = true;
             isFrist = false;
         }
-        var target = {};
-        target[dir] = dis[dir] + startEl[dir];
+        var target = {
+            x: dis.x + startEl.x,
+            y: dis.y + startEl.y,
+        };
         isMove[dir] && css(swiper, translate[dir], target[dir]);
         lastPoint.x = nowPoint.x;
         lastPoint.y = nowPoint.y;
@@ -471,11 +474,11 @@ mv.tool.openHref = function (obj) {
     var url = obj.getElementsByTagName('a')[0];
     window.location.href = url.href;
 }
-mv.tool.autoChange = function (obj,dir) {
+mv.tool.autoChange = function (obj,dir,now) {
     var el = obj.children;
     var length = el.length;
-    var num = 0;
-    var num2 = 0;
+    var num = now;
+    var num2 = now;
     var offset = {
         x: 'offsetWidth',
         y: 'offsetHeight',
