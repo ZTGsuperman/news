@@ -23,7 +23,7 @@ window.onload = function () {
         el: myHandle,
         dir: 'y',
         move: function (target) {
-            if (Math.abs(target.y) >Math.abs(target.x)) {
+            if (Math.abs(target.y) >Math.abs(target.x)&&target.y>5) {
                 tip.innerHTML = '松开刷新';
                 isRe = true;
             }
@@ -90,7 +90,9 @@ mv.app.downRefresh = function (start) {
 }
 
 function down(data) {
-    mv.app.createLi(data)
+    if (data.code===200) {
+        mv.app.createLi(data)
+    }
 }
 
 //首次进入刷新新闻
@@ -368,6 +370,9 @@ mv.tool.myScroll = function (init) {
     var startEl = {};
     var lastPoint = {};
     var dir = init.dir;
+    var lastTime = 0;
+    var disTime = 0;
+    var dis={}
     var max = {
         x: parseInt(css(init.el, "width") - css(swiper, "width")),
         y: parseInt(css(init.el, "height") - css(swiper, "height"))
@@ -392,7 +397,8 @@ mv.tool.myScroll = function (init) {
     init.el.addEventListener('touchstart', function (e) {
         init.start && init.start();
         var touch = e.changedTouches[0]
-
+        var date = new Date();
+        lastTime = date.getTime();
         startPoint = {
             x: Math.round(touch.pageX),
             y: Math.round(touch.pageY)
@@ -410,15 +416,23 @@ mv.tool.myScroll = function (init) {
             x: parseInt(css(init.el, "width") - css(swiper, "width")),
             y: parseInt(css(init.el, "height") - css(swiper, "height"))
         }
-       
+        disTime = 0;
+        dis = {
+            x: 0,
+            y:0
+        }
     });
+    css(swiper, "translateZ", 0.01);
     init.el.addEventListener('touchmove', function (e) {
         var touch = e.changedTouches[0];
+        var date = new Date();
+        nowTime = date.getTime();
+        disTime = nowTime - lastTime;
         var nowPoint = {
             x: Math.round(touch.pageX),
             y: Math.round(touch.pageY)
         }
-        var dis = {
+        dis = {
             x: nowPoint.x - startPoint.x,
             y: nowPoint.y - startPoint.y
         }
@@ -438,27 +452,31 @@ mv.tool.myScroll = function (init) {
         lastPoint.x = nowPoint.x;
         lastPoint.y = nowPoint.y;
         init.move && init.move(target);
+        lastTime = nowTime;
     });
 
     init.el.addEventListener('touchend', function (e) {
-       
         if (lastPoint.x == startPoint.x && lastPoint.y == startPoint.y) {
             return;
         }
-        var now = css(swiper, translate[dir]);
+
+        var speed = Math.round(dis[dir] / disTime * 10);
+         
+
+        var now = css(swiper, translate[dir])+speed*5;
         if (now < max[dir]) {
             now = max[dir];
         } else if (now > 0) {
             now = 0;
         }
-        var target = {};
-        target[translate[dir]] = now;
+     
 
+        //console.log(Math.abs(Math.round(now - css(swiper, translate[dir]))))
         MTween({
             el: swiper,
-            target: target,
+            target: {translateY:now},
             type: "easeOut",
-            time: 300
+            time: Math.abs(Math.round(now - css(swiper, translate[dir]))*2)
         });
         isMove = {
             x: false,
