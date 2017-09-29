@@ -4,6 +4,40 @@ var mv = {};
 mv.app = {};
 mv.tool = {};
 
+window.addEventListener('focus', function () {
+    var imgNews = document.querySelector('.img_news')
+    var oUl = imgNews.getElementsByTagName('ul')[0];
+    var oLi = oUl.getElementsByTagName('li');
+
+    var importent = document.querySelector('.importent');
+    var oL = importent.getElementsByTagName('ol')[0];
+    var lLi = oL.getElementsByTagName('li');
+
+    var index1 = Math.abs(css(oUl, 'translateX')) / oLi[0].offsetWidth;
+    var index2 = Math.abs(css(oL, 'translateY')) / lLi[0].offsetHeight;
+
+
+    setTimeout(function () {
+        mv.tool.autoChange(oUl, 'x', index1)
+    },4000)
+
+    setTimeout(function () {
+        mv.tool.autoChange(oL, 'y', index2)
+    },2000)
+})
+
+window.addEventListener('blur', function () {
+    var imgNews = document.querySelector('.img_news')
+    var oUl = imgNews.getElementsByTagName('ul')[0];
+
+    var importent = document.querySelector('.importent');
+    var oL = importent.getElementsByTagName('ol')[0];
+
+    clearInterval(oUl.timer)
+    clearInterval(oL.timer)
+})
+
+
 window.onload = function () {
 
     mv.app.fRefresh()
@@ -277,7 +311,7 @@ mv.app.changeImg = function () {
             mv.tool.openHref(this)
         })
     }
-    setTimeout(function () {
+   setTimeout(function () {
         mv.tool.autoChange(oUl, 'x',0)
     }, 6000)
 }
@@ -308,10 +342,10 @@ mv.app.importent = function (data) {
             mv.tool.openHref(this)
         })
     }
-    setTimeout(function () {
+   setTimeout(function () {
         mv.tool.autoChange(oL,'y',0)
     }, 4000)
-
+   
 }
 
 mv.app.createLi = function (data) {
