@@ -477,7 +477,7 @@ mv.tool.myScroll = function (init) {
         var speed = Math.round(lastDis / disTime*10);
         speed = disTime <= 0 ? 0 : speed;
       
-        var now = css(swiper, translate[dir])+speed*20;
+        var now = css(swiper, translate[dir])+speed*30;
         if (now < max[dir]) {
             now = max[dir];
         } else if (now > 0) {
