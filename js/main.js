@@ -8,16 +8,17 @@ window.onload = function () {
 
     mv.app.fRefresh()
 
-
     var myHandle=document.querySelector('.myhandle');
     var main=myHandle.querySelector('#main');
     var refresh = myHandle.querySelector('.refresh');
     var tip = refresh.getElementsByTagName('em')[0];
 
+
+
     var arr = ['A', 'B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B09', 'B010']
     var index = 0;
     var isRe = false;
-    var downOff = false;
+    var downOff = true;
     var start = 10;
     mv.tool.myScroll({
         el: myHandle,
@@ -28,7 +29,11 @@ window.onload = function () {
                 isRe = true;
             }
             if (Math.abs(target.y) > Math.abs((myHandle.offsetHeight-main.offsetHeight))) {
-                downOff = true;
+                if (downOff) {
+                    start += 10;
+                    mv.app.downRefresh(start);
+                    downOff = false;
+                }
             }
         },
         end: function (target) {
@@ -39,12 +44,7 @@ window.onload = function () {
                     mv.app.upRefresh(arr[index]);
                     isRe = false;
             }
-
-            if (downOff) {
-                start += 10;
-                mv.app.downRefresh(start, downOff);
-                downOff = false;
-            }
+            downOff = true;
         }
     })
 }
@@ -184,11 +184,14 @@ mv.app.getImg = function (data) {
                 imgList[i].url = data.focus[i].picInfo[0].url;
             }
         }
-
+       
         var oUl = document.querySelector('.img_news').getElementsByTagName('ul')[0];
+        var index = 0;
         for (var i = 0; i < imgList.length; i++) {
             if (imgList[i].title != '') {
                 var li = document.createElement('li');
+                li.index = index;
+                index++;
                 var a = document.createElement('a');
                 var h5 = document.createElement('h5');
 
@@ -219,13 +222,15 @@ mv.app.changeImg = function () {
     var startPoint = 0;
     oUl.addEventListener('touchstart', function (ev) {
         var touch = ev.changedTouches[0];
+        var target = ev.srcElement || target;
+        index = target.index;
         lastPoint = touch.pageX;
+        clearInterval(oUl.timer);
         startY = touch.pageY;
         startL = css(oUl, 'translateX');
         oUl.style.transition = oUl.style.webkitTransition = 'none';
     })
     oUl.addEventListener('touchmove', function (ev) {
-        clearInterval(oUl.timer)
         var touch = ev.changedTouches[0];
         var nowPonit = touch.pageX;
         var nowY = touch.pageY;
@@ -273,9 +278,12 @@ mv.app.changeImg = function () {
         })
     }
     setTimeout(function () {
-        mv.tool.autoChange(oUl, 'x', index)
+        mv.tool.autoChange(oUl, 'x',0)
     }, 6000)
 }
+
+
+
 mv.app.importent = function (data) {
     var importent = document.querySelector('.importent');
     var total = importent.querySelector('.total')
@@ -403,7 +411,7 @@ mv.tool.myScroll = function (init) {
         init.start && init.start();
         var touch = e.changedTouches[0]
         lastTime = new Date().getTime();
-     //   console.log(lastTime)
+    
         clearInterval(swiper.timer);
         startPoint = {
             x: Math.round(touch.pageX),
@@ -418,10 +426,7 @@ mv.tool.myScroll = function (init) {
             y: css(swiper, "translateY")
         };
         last[dir] = startEl[dir];
-        max = {
-            x: parseInt(css(init.el, "width") - css(swiper, "width")),
-            y: parseInt(css(init.el, "height") - css(swiper, "height"))
-        }
+      
         disTime = lastDis = 0;
         
     });
@@ -430,10 +435,13 @@ mv.tool.myScroll = function (init) {
         var touch = e.changedTouches[0];
         nowTime = new Date().getTime();
         disTime = nowTime - lastTime;
-       // console.log(disTime+','+nowTime)
         var nowPoint = {
             x: Math.round(touch.pageX),
             y: Math.round(touch.pageY)
+        }
+        max = {
+            x: parseInt(css(init.el, "width") - css(swiper, "width")),
+            y: parseInt(css(init.el, "height") - css(swiper, "height"))
         }
        var  dis = {
             x: nowPoint.x - startPoint.x,
@@ -458,7 +466,7 @@ mv.tool.myScroll = function (init) {
         lastPoint.y = nowPoint.y;
         init.move && init.move(target);
         lastTime = nowTime;
-        
+         last[dir]=target[dir]
     });
 
     init.el.addEventListener('touchend', function (e) {
@@ -466,18 +474,16 @@ mv.tool.myScroll = function (init) {
             return;
         }
 
-        var speed = Math.round(lastDis / disTime);
+        var speed = Math.round(lastDis / disTime*10);
         speed = disTime <= 0 ? 0 : speed;
       
-        var now = css(swiper, translate[dir])+speed*10;
+        var now = css(swiper, translate[dir])+speed*20;
         if (now < max[dir]) {
             now = max[dir];
         } else if (now > 0) {
             now = 0;
         }
-     
-        console.log(speed)
-        //console.log(Math.abs(Math.round(now - css(swiper, translate[dir]))))
+           
         MTween({
             el: swiper,
             target: {translateY:now},
@@ -501,6 +507,7 @@ mv.tool.openHref = function (obj) {
 mv.tool.autoChange = function (obj,dir,now) {
     var el = obj.children;
     var length = el.length;
+   
     var num = now;
     var num2 = now;
     var offset = {
