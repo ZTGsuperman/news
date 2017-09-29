@@ -220,7 +220,7 @@ mv.app.changeImg = function () {
     oUl.addEventListener('touchstart', function (ev) {
         var touch = ev.changedTouches[0];
         lastPoint = touch.pageX;
-        startPoint = touch.pageY;
+        startY = touch.pageY;
         startL = css(oUl, 'translateX');
         oUl.style.transition = oUl.style.webkitTransition = 'none';
     })
@@ -228,6 +228,7 @@ mv.app.changeImg = function () {
         clearInterval(oUl.timer)
         var touch = ev.changedTouches[0];
         var nowPonit = touch.pageX;
+        var nowY = touch.pageY;
 
         dis = nowPonit - lastPoint;
         var target = dis + css(oUl, 'translateX');
@@ -237,12 +238,15 @@ mv.app.changeImg = function () {
             target = -(oUl.offsetWidth - liW);
 
         }
-        css(oUl, 'translateX', target);
+        if (nowY - startY < 10) {
+            css(oUl, 'translateX', target);
+        }
+       
         lastPoint = nowPonit;
     })
     oUl.addEventListener('touchend', function (ev) {
         var touch = ev.changedTouches[0];
-        var endPoint = touch.pageY;
+        var endY = touch.pageY;
         var endL = css(oUl, 'translateX');
         var moveX = Math.abs(endL - startL);
         if (dis < 0 && moveX > 20) {
@@ -254,7 +258,7 @@ mv.app.changeImg = function () {
         }
         oUl.style.transition = oUl.style.webkitTransition = '0.3s';
         css(oUl, 'translateX', -index * liW);
-        if (endPoint - startPoint < 10) {
+        if (endY - startY < 10) {
             ev.stopPropagation();
         }
 
@@ -297,7 +301,7 @@ mv.app.importent = function (data) {
         })
     }
     setTimeout(function () {
-        mv.tool.autoChange(oL,'y')
+        mv.tool.autoChange(oL,'y',0)
     }, 4000)
 
 }
@@ -372,7 +376,8 @@ mv.tool.myScroll = function (init) {
     var dir = init.dir;
     var lastTime = 0;
     var disTime = 0;
-    var dis={}
+    var last = {};
+    var lastDis = 0;
     var max = {
         x: parseInt(css(init.el, "width") - css(swiper, "width")),
         y: parseInt(css(init.el, "height") - css(swiper, "height"))
@@ -397,8 +402,9 @@ mv.tool.myScroll = function (init) {
     init.el.addEventListener('touchstart', function (e) {
         init.start && init.start();
         var touch = e.changedTouches[0]
-        var date = new Date();
-        lastTime = date.getTime();
+        lastTime = new Date().getTime();
+     //   console.log(lastTime)
+        clearInterval(swiper.timer);
         startPoint = {
             x: Math.round(touch.pageX),
             y: Math.round(touch.pageY)
@@ -411,28 +417,25 @@ mv.tool.myScroll = function (init) {
             x: css(swiper, "translateX"),
             y: css(swiper, "translateY")
         };
-
+        last[dir] = startEl[dir];
         max = {
             x: parseInt(css(init.el, "width") - css(swiper, "width")),
             y: parseInt(css(init.el, "height") - css(swiper, "height"))
         }
-        disTime = 0;
-        dis = {
-            x: 0,
-            y:0
-        }
+        disTime = lastDis = 0;
+        
     });
     css(swiper, "translateZ", 0.01);
     init.el.addEventListener('touchmove', function (e) {
         var touch = e.changedTouches[0];
-        var date = new Date();
-        nowTime = date.getTime();
+        nowTime = new Date().getTime();
         disTime = nowTime - lastTime;
+       // console.log(disTime+','+nowTime)
         var nowPoint = {
             x: Math.round(touch.pageX),
             y: Math.round(touch.pageY)
         }
-        dis = {
+       var  dis = {
             x: nowPoint.x - startPoint.x,
             y: nowPoint.y - startPoint.y
         }
@@ -448,11 +451,14 @@ mv.tool.myScroll = function (init) {
             x: dis.x + startEl.x,
             y: dis.y + startEl.y,
         };
+
+        lastDis = target[dir] - last[dir];
         isMove[dir] && css(swiper, translate[dir], target[dir]);
         lastPoint.x = nowPoint.x;
         lastPoint.y = nowPoint.y;
         init.move && init.move(target);
         lastTime = nowTime;
+        
     });
 
     init.el.addEventListener('touchend', function (e) {
@@ -460,17 +466,17 @@ mv.tool.myScroll = function (init) {
             return;
         }
 
-        var speed = Math.round(dis[dir] / disTime * 10);
-         
-
-        var now = css(swiper, translate[dir])+speed*5;
+        var speed = Math.round(lastDis / disTime);
+        speed = disTime <= 0 ? 0 : speed;
+      
+        var now = css(swiper, translate[dir])+speed*10;
         if (now < max[dir]) {
             now = max[dir];
         } else if (now > 0) {
             now = 0;
         }
      
-
+        console.log(speed)
         //console.log(Math.abs(Math.round(now - css(swiper, translate[dir]))))
         MTween({
             el: swiper,
@@ -509,7 +515,7 @@ mv.tool.autoChange = function (obj,dir,now) {
     
     var moveDis = 0;
    
-    moveDis = dir === 'x' ? el[0].offsetWidth : el[0].offsetHeight;
+    moveDis = (dir === 'x') ? el[0].offsetWidth : el[0].offsetHeight;
 
     obj.timer = setInterval(function () {
         if (num === length - 1) {
