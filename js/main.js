@@ -25,8 +25,8 @@ window.addEventListener('focus', function () {
             setTimeout(function () {
                 mv.tool.autoChange(oL, 'y', index2)
             }, 2000)
-            isFrist = false;
     }
+    isFrist = false;
 })
 
 window.addEventListener('blur', function () {
