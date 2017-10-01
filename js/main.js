@@ -3,27 +3,30 @@
 var mv = {};
 mv.app = {};
 mv.tool = {};
-
+var isFrist = true;
 window.addEventListener('focus', function () {
-    var imgNews = document.querySelector('.img_news')
-    var oUl = imgNews.getElementsByTagName('ul')[0];
-    var oLi = oUl.getElementsByTagName('li');
+    if (!isFrist) {
+            var imgNews = document.querySelector('.img_news')
+            var oUl = imgNews.getElementsByTagName('ul')[0];
+            var oLi = oUl.getElementsByTagName('li');
 
-    var importent = document.querySelector('.importent');
-    var oL = importent.getElementsByTagName('ol')[0];
-    var lLi = oL.getElementsByTagName('li');
+            var importent = document.querySelector('.importent');
+            var oL = importent.getElementsByTagName('ol')[0];
+            var lLi = oL.getElementsByTagName('li');
 
-    var index1 = Math.abs(css(oUl, 'translateX')) / oLi[0].offsetWidth;
-    var index2 = Math.abs(css(oL, 'translateY')) / lLi[0].offsetHeight;
+            var index1 = Math.abs(css(oUl, 'translateX')) / oLi[0].offsetWidth;
+            var index2 = Math.abs(css(oL, 'translateY')) / lLi[0].offsetHeight;
 
 
-    setTimeout(function () {
-        mv.tool.autoChange(oUl, 'x', index1)
-    },4000)
+            setTimeout(function () {
+                mv.tool.autoChange(oUl, 'x', index1)
+            }, 4000)
 
-    setTimeout(function () {
-        mv.tool.autoChange(oL, 'y', index2)
-    },2000)
+            setTimeout(function () {
+                mv.tool.autoChange(oL, 'y', index2)
+            }, 2000)
+            isFrist = false;
+    }
 })
 
 window.addEventListener('blur', function () {
