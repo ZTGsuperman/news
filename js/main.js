@@ -132,6 +132,8 @@ function down(data) {
     }
 }
 
+
+
 //首次进入刷新新闻
 mv.app.fRefresh = function () {
     var oScrip = document.createElement('script');
@@ -144,6 +146,7 @@ function getNews(data) {
     mv.app.importent(data)
     mv.app.createLi(data)
 }
+
 
 mv.app.getImg = function (data) {
     var imgList = [
@@ -356,7 +359,7 @@ mv.app.createLi = function (data) {
     var oUl = newList.getElementsByTagName('ul')[0];
    
         for (var i = 0; i < data.list.length; i++) {
-            if (data.list[i].addata === null) {
+            if (data.list[i].addata === null && data.list[i].picInfo[0]) {
                 var li = document.createElement('li');
                 var img = document.createElement('img');
                 var div = document.createElement('div');
